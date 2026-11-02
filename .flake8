@@ -1,0 +1,7 @@
+[flake8]
+max-line-length = 100
+# E127: continuation line over-indented for visual indent. app.py is kept
+# byte-for-byte as given in the assessment brief, whose multi-line jsonify()
+# call doesn't match flake8's visual-indent expectation. Ignored rather than
+# reformatted so the shipped app.py matches the spec exactly.
+extend-ignore = E127

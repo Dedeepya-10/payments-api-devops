@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments-api
+  template:
+    metadata:
+      labels:
+        app: payments-api # was "payments" — didn't match the selector
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: payments-api
+          image: ghcr.io/example-org/payments-api:sha-abc1234 # was :latest — untraceable, unpinned
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: production
+            - name: DATABASE_URL # was missing entirely — /ready stayed 503 forever
+              valueFrom:
+                secretKeyRef:
+                  name: payments-api-secrets
+                  key: DATABASE_URL
+          resources:
+            requests: # was missing — pod had no scheduling guarantee
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              memory: "256Mi" # was 16Mi — too small for a Python+Flask process, caused OOMKills
+              cpu: "500m" # was 50m — too little to finish startup before the probe fired
+          livenessProbe:
+            httpGet:
+              path: /healthz # was /health — wrong path, always failing, caused restart loops
+              port: 8080
+            initialDelaySeconds: 10 # was 1 — too short for the app to bind before being killed
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payments-api-secrets
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/payments" # placeholder only
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-api
+spec:
+  selector:
+    app: payments-api
+  ports:
+    - port: 80
+      targetPort: 8080 # was 80 — container listens on 8080, Service found no working endpoint

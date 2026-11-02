@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.DS_Store
+
+# real secret manifest is generated locally / in CI, never committed
+k8s/secret.yaml
+
+# terraform (the lock file IS committed for reproducible provider versions)
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+terraform/**/*.tfplan
+terraform/**/crash.log
+terraform/**/terraform.tfvars

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: payments-api
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml # generated locally, see secret.example.yaml — not committed
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  - pdb.yaml

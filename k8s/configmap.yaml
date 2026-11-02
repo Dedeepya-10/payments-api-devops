@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payments-api-config
+  namespace: payments-api
+data:
+  APP_ENV: "production"

@@ -1,0 +1,2 @@
+# Copy to terraform.tfvars (gitignored) and fill in, or pass via -var/-var-file in CI.
+image = "ghcr.io/example-org/payments-api:sha-replace-me"

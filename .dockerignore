@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+k8s
+helm
+terraform
+troubleshooting
+*.md
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+.env
+.DS_Store
+.pytest_cache
